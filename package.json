@@ -1,0 +1,16 @@
+{
+  "name": "tes-golden-chat",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "concurrently 'npm run dev:frontend' 'npm run dev:backend'",
+    "dev:frontend": "npm run dev --workspace=apps/frontend",
+    "dev:backend": "npm run dev --workspace=apps/backend",
+    "build": "npm run build --workspaces",
+    "test": "npm run test --workspaces"
+  }
+}
