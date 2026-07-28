@@ -1,0 +1,101 @@
+{
+  "$schema": "zero-human/deploy-manifest@1",
+  "appType": "fullstack",
+  "monorepoStructure": {
+    "frontend": "apps/frontend",
+    "backend": "apps/backend",
+    "database": "database"
+  },
+  "frontend": {
+    "framework": "nextjs",
+    "dir": "apps/frontend",
+    "apiBaseEnvVar": "NEXT_PUBLIC_API_URL",
+    "requiredFiles": [
+      "apps/frontend/package.json",
+      "apps/frontend/next.config.js",
+      "apps/frontend/postcss.config.js",
+      "apps/frontend/tailwind.config.ts",
+      "apps/frontend/tsconfig.json",
+      "apps/frontend/railway.toml",
+      "apps/frontend/src/app/layout.tsx",
+      "apps/frontend/src/app/page.tsx",
+      "apps/frontend/src/app/globals.css",
+      "apps/frontend/src/app/api/health/route.ts",
+      "apps/frontend/src/lib/api.ts"
+    ],
+    "$commentTailwind": "If you use Tailwind: postcss.config.js is MANDATORY (tailwindcss + autoprefixer plugins), and tailwindcss/postcss/autoprefixer must be in dependencies (not devDependencies). next.config.js must set output: \"standalone\"."
+  },
+  "backend": {
+    "framework": "express",
+    "dir": "apps/backend",
+    "portEnvVar": "PORT",
+    "databaseUrlEnvVar": "DATABASE_URL",
+    "requiredFiles": [
+      "apps/backend/package.json",
+      "apps/backend/tsconfig.json",
+      "apps/backend/railway.toml",
+      "apps/backend/src/index.ts",
+      "apps/backend/src/lib/prisma.ts",
+      "apps/backend/src/middleware/auth.ts",
+      "apps/backend/src/routes/health.ts",
+      "apps/backend/src/routes/auth.ts",
+      "apps/backend/src/routes/items.ts"
+    ],
+    "requiredRoutes": [
+      "POST /api/auth/register",
+      "POST /api/auth/login",
+      "POST /api/auth/logout",
+      "GET /api/auth/me",
+      "GET /api/items",
+      "POST /api/items",
+      "GET /api/items/:id",
+      "PATCH /api/items/:id",
+      "DELETE /api/items/:id",
+      "GET /health"
+    ],
+    "routeMounts": [
+      {
+        "mount": "/api/auth",
+        "file": "apps/backend/src/routes/auth.ts",
+        "handlers": [
+          "POST /register",
+          "POST /login",
+          "POST /logout",
+          "GET /me"
+        ]
+      },
+      {
+        "mount": "/api/items",
+        "file": "apps/backend/src/routes/items.ts",
+        "handlers": [
+          "GET /",
+          "POST /",
+          "GET /:id",
+          "PATCH /:id",
+          "DELETE /:id"
+        ]
+      },
+      {
+        "mount": "/health",
+        "file": "apps/backend/src/routes/health.ts",
+        "handlers": [
+          "GET /"
+        ]
+      }
+    ],
+    "$commentRouteMounts": "Add one routeMounts entry per Express router file you create, listing every leaf handler as \"METHOD /path-relative-to-mount\". requiredRoutes must list the full METHOD + path for every endpoint the feature needs, and every route you list must be implemented by a file in requiredFiles."
+  },
+  "database": {
+    "engine": "postgresql",
+    "schemaFile": "database/schema.sql",
+    "requiredTables": [
+      "users",
+      "items"
+    ]
+  },
+  "storage": {
+    "usesS3": false,
+    "bucketEnvVar": "S3_BUCKET",
+    "regionEnvVar": "S3_REGION"
+  }
+}

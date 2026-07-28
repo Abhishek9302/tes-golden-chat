@@ -1,0 +1,91 @@
+{
+  "appType": "fullstack",
+  "hostingTarget": "railway",
+  "inferenceProvider": "huggingface",
+  "trainingProfile": "kaggle-unsloth",
+  "attachModelId": "amkb222/tes-golden-chat-lora",
+  "monorepoStructure": {
+    "frontend": "apps/frontend",
+    "backend": "apps/backend",
+    "database": "database"
+  },
+  "frontend": {
+    "dir": "apps/frontend",
+    "framework": "nextjs",
+    "outputMode": "standalone",
+    "apiBaseEnvVar": "NEXT_PUBLIC_API_URL",
+    "requiredFiles": [
+      "apps/frontend/package.json",
+      "apps/frontend/railway.toml",
+      "apps/frontend/next.config.js",
+      "apps/frontend/postcss.config.js",
+      "apps/frontend/tailwind.config.ts",
+      "apps/frontend/tsconfig.json",
+      "apps/frontend/src/app/globals.css",
+      "apps/frontend/src/app/layout.tsx",
+      "apps/frontend/src/app/api/health/route.ts",
+      "apps/frontend/src/lib/api.ts",
+      "apps/frontend/src/app/login/page.tsx",
+      "apps/frontend/src/app/chat/page.tsx"
+    ]
+  },
+  "backend": {
+    "dir": "apps/backend",
+    "framework": "express",
+    "runtime": "node",
+    "portEnvVar": "PORT",
+    "databaseUrlEnvVar": "DATABASE_URL",
+    "requiredEnv": [
+      "PORT",
+      "DATABASE_URL",
+      "JWT_SECRET",
+      "FINE_TUNED_MODEL_ID",
+      "LLM_PROVIDER",
+      "HUGGINGFACE_TOKEN",
+      "GROQ_API_KEY"
+    ],
+    "requiredFiles": [
+      "apps/backend/package.json",
+      "apps/backend/railway.toml",
+      "apps/backend/tsconfig.json",
+      "apps/backend/src/index.ts",
+      "apps/backend/src/db.ts",
+      "apps/backend/src/middleware/auth.ts",
+      "apps/backend/src/routes/health.ts",
+      "apps/backend/src/routes/auth.ts",
+      "apps/backend/src/routes/chat.ts"
+    ],
+    "requiredRoutes": [
+      "GET /health",
+      "POST /api/auth/register",
+      "POST /api/auth/login",
+      "POST /api/chat"
+    ],
+    "routeMounts": [
+      {
+        "mount": "/",
+        "file": "apps/backend/src/routes/health.ts",
+        "handlers": ["GET /health"]
+      },
+      {
+        "mount": "/api/auth",
+        "file": "apps/backend/src/routes/auth.ts",
+        "handlers": ["POST /register", "POST /login"]
+      },
+      {
+        "mount": "/api/chat",
+        "file": "apps/backend/src/routes/chat.ts",
+        "handlers": ["POST /"]
+      }
+    ]
+  },
+  "database": {
+    "schemaFile": "database/schema.sql",
+    "dialect": "postgresql",
+    "requiredTables": ["users"]
+  },
+  "storage": {
+    "type": "postgres",
+    "required": true
+  }
+}
